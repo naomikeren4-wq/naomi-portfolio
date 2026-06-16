@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>נעמי קרן — UX Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet" />
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Lenis -->
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #F7F4EF;
+      --cream:   #3A4829;
+      --green:   #3A4829;
+      --accent:  #E8A87C;
+      --muted:   #5C6B4A;
+      --border:  rgba(58,72,41,0.12);
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      font-family: 'Heebo', sans-serif;
+      background: var(--bg);
+      color: var(--cream);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── PAGE CONTENT WRAPPER ──────────────────────────── */
+    .page-content {
+      position: relative;
+      z-index: 1;
+      isolation: isolate;
+    }
+
+    /* ── PRELOADER ─────────────────────────────────────── */
+    #preloader {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #pre-count {
+      font-size: clamp(80px, 18vw, 200px);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--cream);
+      letter-spacing: -4px;
+    }
+    #pre-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: var(--cream);
+    }
+
+    /* ── CURSOR ────────────────────────────────────────── */
+    #orb-cursor {
+      width: 520px; height: 520px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 36%, rgba(255,210,0,1) 0%, rgba(255,140,0,0.7) 30%, rgba(255,140,0,0.15) 58%, transparent 72%),
+        radial-gradient(circle at 68% 65%, rgba(255,40,120,0.9) 0%, rgba(255,90,80,0.55) 30%, rgba(255,90,80,0.1) 58%, transparent 72%);
+      filter: blur(36px);
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: multiply;
+      will-change: transform;
+    }
+
+    /* ── THREE.JS CANVAS ───────────────────────────────── */
+    #three-canvas {
+      position: fixed; inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+
+    /* ── NAV ───────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; width: 100%;
+      padding: 28px 52px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-size: 17px; font-weight: 700;
+      color: var(--cream); text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-links { display: flex; gap: 40px; list-style: none; }
+    .nav-links a {
+      color: var(--cream); text-decoration: none;
+      font-size: 13px; font-weight: 400;
+      opacity: 0.7; transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+
+    /* ── HERO ──────────────────────────────────────────── */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 52px 72px;
+      position: relative; z-index: 1;
+    }
+    .hero-eyebrow {
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 3.5px;
+      text-transform: uppercase;
+      opacity: 0;
+      margin-bottom: 28px;
+      color: var(--muted);
+    }
+    .hero-title {
+      font-size: clamp(52px, 9.5vw, 136px);
+      font-weight: 900;
+      line-height: 0.9;
+      letter-spacing: -3px;
+    }
+    .hero-title .line { display: block; overflow: hidden; }
+    .hero-title .line-inner {
+      display: block;
+      transform: translateY(105%);
+    }
+    .hero-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 52px;
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    .hero-desc {
+      font-size: clamp(26px, 3.4vw, 40px);
+      font-weight: 300;
+      line-height: 1.65;
+      max-width: 520px;
+      color: var(--muted);
+    }
+    .btn-main {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--cream); color: var(--bg);
+      padding: 18px 38px;
+      border-radius: 100px;
+      font-size: 16px; font-weight: 700;
+      text-decoration: none;
+      font-family: 'Heebo', sans-serif;
+      cursor: none; border: none;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    }
+    .btn-main:hover {
+      transform: scale(1.04) translateY(-2px);
+      box-shadow: 0 16px 40px rgba(58,72,41,0.2);
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 72px; left: 52px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      opacity: 0;
+    }
+    .scroll-hint span {
+      font-size: 10px; letter-spacing: 2.5px;
+      text-transform: uppercase; opacity: 0.65;
+      writing-mode: vertical-rl;
+    }
+    .scroll-hint-line {
+      width: 1px; height: 56px;
+      background: linear-gradient(to bottom, var(--green), transparent);
+      animation: lineGrow 1.8s ease-in-out infinite;
+    }
+    @keyframes lineGrow {
+      0%,100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+      50%      { opacity: 0.4; transform: scaleY(1); }
+    }
+
+    /* ── MARQUEE ───────────────────────────────────────── */
+    .marquee {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0; overflow: hidden;
+    }
+    .marquee-track {
+      display: flex; gap: 56px;
+      white-space: nowrap;
+      width: max-content;
+      animation: ticker 22s linear infinite;
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-item {
+      font-size: 12px; font-weight: 400;
+      letter-spacing: 3px; text-transform: uppercase;
+      opacity: 0.62; flex-shrink: 0;
+    }
+    .marquee-star { color: #7A5C00; opacity: 1 !important; }
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── SERVICES ──────────────────────────────────────── */
+    .services {
+      position: relative; z-index: 1;
+      padding: 140px 52px;
+    }
+    .sec-label {
+      font-size: 14px; letter-spacing: 3px;
+      text-transform: uppercase; opacity: 0.75;
+      margin-bottom: 20px;
+    }
+    .sec-title {
+      font-size: clamp(36px, 5.5vw, 80px);
+      font-weight: 900; line-height: 0.95;
+      letter-spacing: -2px;
+      margin-bottom: 72px;
+    }
+    .service-row {
+      display: flex; align-items: center;
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: none; position: relative; overflow: hidden;
+      transition: padding 0.3s ease;
+    }
+    .service-row:first-of-type { border-top: 1px solid var(--border); }
+    .service-row::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(58,72,41,0.04);
+      transform: translateX(101%);
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+    }
+    .service-row:hover::after { transform: translateX(0); }
+    .service-row:hover { padding-right: 16px; }
+    .svc-num {
+      font-size: 20px; opacity: 0.65; font-weight: 400;
+      min-width: 52px;
+    }
+    .svc-name {
+      flex: 1;
+      font-size: clamp(22px, 3.2vw, 48px);
+      font-weight: 700; letter-spacing: -1px;
+      padding: 0 32px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .svc-desc {
+      font-size: clamp(13px, 1.2vw, 16px);
+      font-weight: 300; letter-spacing: 0;
+      color: var(--muted); opacity: 0.85;
+    }
+    .svc-price {
+      font-size: 13px; opacity: 0.72; font-weight: 400;
+      margin-left: 24px;
+    }
+    .svc-arrow {
+      width: 44px; height: 44px;
+      border: 1px solid rgba(58,72,41,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+      flex-shrink: 0;
+    }
+    .service-row:hover .svc-arrow {
+      background: var(--cream); color: var(--bg);
+      border-color: var(--cream);
+      transform: rotate(-45deg);
+    }
+
+    /* ── PORTFOLIO ─────────────────────────────────────── */
+    .portfolio {
+      position: relative; z-index: 1;
+      padding: 100px 0 140px;
+    }
+    .portfolio-head { padding: 0 52px; margin-bottom: 56px; }
+    .port-scroll {
+      display: flex; gap: 20px;
+      padding: 0 52px 24px;
+      overflow-x: auto; scrollbar-width: none;
+      cursor: grab;
+      -webkit-overflow-scrolling: touch;
+    }
+    .port-scroll::-webkit-scrollbar { display: none; }
+    .port-scroll.dragging { cursor: grabbing; }
+    .port-card {
+      flex-shrink: 0;
+      width: clamp(280px, 36vw, 480px);
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      position: relative;
+    }
+    .port-card-inner {
+      width: 100%; height: 100%;
+      transform: scale(1);
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .port-card:hover .port-card-inner { transform: scale(1.03); }
+    .card-bg {
+      position: absolute; inset: 0;
+      border-radius: 18px;
+    }
+    .card-bg-1 {
+      background: linear-gradient(145deg, #E8A87C 0%, #C07490 45%, #4A2060 100%);
+    }
+    .card-bg-2 {
+      background: linear-gradient(145deg, #3A4829 0%, #5A8A50 50%, #A0D080 100%);
+    }
+    .card-bg-3 {
+      background: linear-gradient(145deg, #1E2E60 0%, #5A3C8A 50%, #C890E0 100%);
+    }
+    .card-noise {
+      position: absolute; inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+    .card-meta {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%);
+    }
+    .card-cat {
+      font-size: 10px; letter-spacing: 2.5px;
+      text-transform: uppercase; opacity: 0.7; margin-bottom: 6px;
+      color: #F7F4EF;
+    }
+    .card-title {
+      font-size: clamp(18px, 2.2vw, 28px);
+      font-weight: 700; line-height: 1.2;
+      color: #F7F4EF;
+    }
+    .card-badge {
+      position: absolute; top: 20px; right: 20px;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 10px; letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #F7F4EF;
+    }
+
+    /* ── ABOUT ─────────────────────────────────────────── */
+    .about {
+      position: relative; z-index: 1;
+      padding: 140px 52px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 100px;
+      align-items: start;
+    }
+    .about-left .about-title {
+      font-size: clamp(40px, 6vw, 88px);
+      font-weight: 900; line-height: 0.95;
+      letter-spacing: -3px;
+      margin-top: 20px;
+    }
+    .about-img {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 50%;
+      margin-top: 32px;
+      display: block;
+    }
+    .about-stats {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 32px; margin-top: 64px;
+    }
+    .stat-n {
+      font-size: clamp(52px, 7vw, 90px);
+      font-weight: 900; line-height: 1;
+      color: #7A5C00;
+    }
+    .stat-suffix { font-size: 0.5em; }
+    .stat-l { font-size: 13px; opacity: 0.72; margin-top: 6px; }
+    .about-text {
+      font-size: 18px;
+      font-weight: 300; line-height: 1.85;
+      color: var(--muted);
+      padding-top: 72px;
+      max-width: 500px;
+    }
+    .about-text p + p { margin-top: 28px; }
+    .about-highlight {
+      color: var(--cream); font-weight: 500;
+    }
+
+    /* ── PROCESS ───────────────────────────────────────── */
+    .process {
+      position: relative; z-index: 1;
+      padding: 100px 52px 140px;
+      border-top: 1px solid var(--border);
+    }
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px; margin-top: 72px;
+    }
+    .proc-card {
+      padding: 44px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: border-color 0.35s, background 0.35s;
+      position: relative; overflow: hidden;
+    }
+    .proc-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at top right, rgba(232,168,124,0.06) 0%, transparent 70%);
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .proc-card:hover { border-color: rgba(242,237,228,0.25); }
+    .proc-card:hover::before { opacity: 1; }
+    .proc-num-bg {
+      font-size: 88px; font-weight: 900; line-height: 1;
+      opacity: 0.06; margin-bottom: -12px;
+      letter-spacing: -4px;
+    }
+    .proc-title {
+      font-size: 21px; font-weight: 700;
+      margin-bottom: 14px; letter-spacing: -0.5px;
+    }
+    .proc-desc {
+      font-size: 14px; font-weight: 300;
+      line-height: 1.75; color: var(--muted);
+    }
+    .proc-badge {
+      display: inline-block;
+      margin-top: 20px;
+      background: rgba(58,72,41,0.1);
+      border: 1px solid rgba(58,72,41,0.3);
+      color: #3A4829;
+      border-radius: 100px;
+      padding: 4px 14px;
+      font-size: 12px; font-weight: 500;
+    }
+
+    /* ── CTA ───────────────────────────────────────────── */
+    .cta {
+      position: relative; z-index: 1;
+      padding: 160px 52px;
+      text-align: center;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 44px;
+    }
+    .cta-eyebrow {
+      font-size: 14px; letter-spacing: 4px;
+      text-transform: uppercase; opacity: 0.72;
+    }
+    .cta-heading {
+      font-size: clamp(48px, 9vw, 120px);
+      font-weight: 900; line-height: 0.92;
+      letter-spacing: -4px;
+    }
+    .cta-heading em {
+      font-style: normal;
+      color: #C01458;
+      transition: color 0.5s ease;
+      cursor: none;
+    }
+    .cta-heading em.sun-on {
+      color: #FFFDE0;
+    }
+    .cta-sub {
+      font-size: clamp(15px, 1.5vw, 18px);
+      font-weight: 300; color: var(--muted);
+      max-width: 420px; line-height: 1.7;
+    }
+
+    /* ── FOOTER ────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 40px 52px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .foot-copy { font-size: 12px; opacity: 0.72; }
+    .foot-email {
+      font-size: 15px; font-weight: 500;
+      color: var(--cream); text-decoration: none;
+      opacity: 0.8; transition: opacity 0.2s;
+    }
+    .foot-email:hover { opacity: 1; }
+
+    /* ── MOBILE ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      body { cursor: auto; }
+      #cur-dot, #cur-ring { display: none; }
+
+      .hero { padding: 0 24px 56px; }
+      .hero-title { letter-spacing: -1.5px; }
+      .hero-bottom {
+        flex-direction: column; align-items: flex-start; gap: 28px;
+      }
+      .scroll-hint { left: 24px; }
+
+      .services { padding: 80px 24px; }
+      .svc-name { padding: 0 12px; }
+      .svc-price { display: none; }
+
+      .portfolio-head { padding: 0 24px; }
+      .port-scroll { padding: 0 24px 20px; }
+
+      .about {
+        grid-template-columns: 1fr;
+        gap: 48px; padding: 80px 24px;
+      }
+      .about-text { padding-top: 0; }
+
+      .process { padding: 80px 24px 100px; }
+      .process-grid { grid-template-columns: 1fr; gap: 20px; }
+      .proc-card { padding: 32px; }
+
+      .cta { padding: 100px 24px; }
+      .cta-heading { letter-spacing: -2px; }
+
+      footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div id="pre-count">0</div>
+    <div id="pre-bar"></div>
+  </div>
+
+  <!-- CURSOR -->
+  <div id="orb-cursor"></div>
+
+  <!-- THREE.JS CANVAS -->
+  <canvas id="three-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">נעמי קרן</a>
+    <ul class="nav-links">
+      <li><a href="#services">שירותים</a></li>
+      <li><a href="#work">עבודות</a></li>
+      <li><a href="#about">עלי</a></li>
+      <li><a href="#contact">צרו קשר</a></li>
+    </ul>
+  </nav>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-content">
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">מעצבת UX &nbsp;·&nbsp; עסקים קטנים &nbsp;·&nbsp; 14 שנות ניסיון</p>
+
+    <h1 class="hero-title">
+      <span class="line"><span class="line-inner">הייחוד שלכם</span></span>
+      <span class="line"><span class="line-inner">קיים.</span></span>
+      <span class="line"><span class="line-inner">האתר פשוט לא</span></span>
+      <span class="line"><span class="line-inner">אומר את זה.</span></span>
+    </h1>
+
+    <div class="hero-bottom">
+      <p class="hero-desc">אני כאן בדיוק בשביל זה — למצוא מה מייחד אתכם ולעצב אתר שמראה את זה לכולם.</p>
+      <a href="#contact" class="btn-main" style="font-size:19px;padding:24px 54px;gap:22px;">לשיחת היכרות חינם <span>&#8592;</span></a>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-hint-line"></div>
+      <span>גלו</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span class="marquee-item">עיצוב אתרים</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">חוויית משתמש</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">ייחוד עסקי</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">מיתוג דיגיטלי</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">אסטרטגיה</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">UX Design</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">עיצוב אתרים</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">חוויית משתמש</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">ייחוד עסקי</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">מיתוג דיגיטלי</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">אסטרטגיה</span>
+      <span class="marquee-item marquee-star">✦</span>
+      <span class="marquee-item">UX Design</span>
+      <span class="marquee-item marquee-star">✦</span>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <p class="sec-label">03 — תהליך</p>
+    <h2 class="sec-title">שלושה<br>שלבים</h2>
+
+    <div class="service-row">
+      <span class="svc-num">01</span>
+      <span class="svc-name">
+        שיחת היכרות
+        <span class="svc-desc">10 דקות לבדוק שיש התאמה. בלי התחייבות, בלי עלות.</span>
+      </span>
+    </div>
+    <div class="service-row">
+      <span class="svc-num">02</span>
+      <span class="svc-name">
+        שיחת חידוד ייחוד
+        <span class="svc-desc">שיחה מעמיקה לחשיפת הייחוד שלכם, ומסמך סיכום כתוב שתיקחו איתכם.</span>
+      </span>
+    </div>
+    <div class="service-row">
+      <span class="svc-num">03</span>
+      <span class="svc-name">
+        עיצוב ושיפור אתר
+        <span class="svc-desc">מתחילים בעמוד הכי דחוף — ממשיכים לפי הצורך.</span>
+      </span>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section class="portfolio" id="work">
+    <div class="portfolio-head">
+      <p class="sec-label">02 — עבודות</p>
+      <h2 class="sec-title">פרויקטים</h2>
+    </div>
+
+    <div class="port-scroll" id="portScroll">
+      <div class="port-card">
+        <div class="port-card-inner">
+          <div class="card-bg card-bg-1"></div>
+          <div class="card-noise"></div>
+          <div class="card-meta">
+            <p class="card-cat">וולנס · ריטריטים</p>
+            <h3 class="card-title">מרכז וולנס<br>וריטריטים</h3>
+          </div>
+          <span class="card-badge">בקרוב</span>
+        </div>
+      </div>
+
+      <div class="port-card">
+        <div class="port-card-inner">
+          <div class="card-bg card-bg-2"></div>
+          <div class="card-noise"></div>
+          <div class="card-meta">
+            <p class="card-cat">טיפול רוחני</p>
+            <h3 class="card-title">מטפלת<br>רוחנית</h3>
+          </div>
+          <span class="card-badge">בקרוב</span>
+        </div>
+      </div>
+
+      <div class="port-card">
+        <div class="port-card-inner">
+          <div class="card-bg card-bg-3"></div>
+          <div class="card-noise"></div>
+          <div class="card-meta">
+            <p class="card-cat">אירועים · ריטריט</p>
+            <h3 class="card-title">ריטריט —<br>דף נחיתה</h3>
+          </div>
+          <span class="card-badge">בקרוב</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="about-left">
+      <p class="sec-label">03 — עלי</p>
+      <h2 class="about-title">14 שנה<br>של ייחוד.</h2>
+    </div>
+    <div class="about-right">
+      <div class="about-text">
+        <p>אני מעצבת UX עם <span class="about-highlight">14 שנות ניסיון</span>, ועובדת עם עסקים קטנים בדיוק על זה — למצוא את הדבר שמייחד אתכם, ולוודא שהאתר משרת את המטרה הזאת.</p>
+        <p>אני עובדת בתהליך הדרגתי — מתחילים בשיחה על חידוד הייחוד, ורק אחר כך מחליטים יחד מה הלאה. <span class="about-highlight">בלי התחייבות לפרויקט גדול מראש.</span></p>
+        <p>הלקוחות שלי הם מטפלים, מרכזי וולנס, זמרים רוחניים, ומי שמאמין שמה שהוא עושה — מגיע לקבל אתר שמשקף את זה.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="contact">
+    <p class="cta-eyebrow">מוכנים להתחיל?</p>
+    <h2 class="cta-heading">הייחוד שלכם<br>מחכה<br><em>ל<span style="display:inline-block;width:0.04em"></span>זרוח.</em></h2>
+    <p class="cta-sub">שיחת היכרות של 10 דקות — בחינם, בלי התחייבות. בואו נראה אם יש התאמה.</p>
+    <a href="mailto:naomi@naomikeren.com" class="btn-main" style="font-size:19px;padding:24px 54px;gap:22px;">לשיחת היכרות חינם <span>&#8592;</span></a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="foot-copy">© 2026 נעמי קרן. כל הזכויות שמורות.</p>
+    <a href="mailto:naomi@naomikeren.com" class="foot-email">naomi@naomikeren.com</a>
+  </footer>
+
+  </div><!-- /.page-content -->
+
+<script>
+// ── GSAP SETUP ─────────────────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+// ── LENIS SMOOTH SCROLL ─────────────────────────────────
+let lenis;
+try {
+  lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+} catch(e) { /* Lenis unavailable, fallback to native */ }
+
+// ── THREE.JS PARTICLE BACKGROUND ───────────────────────
+(function initThree() {
+  const canvas = document.getElementById('three-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.z = 6;
+
+  // Particles
+  const count = 280;
+  const pos = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    pos[i * 3]     = (Math.random() - 0.5) * 18;
+    pos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+    pos[i * 3 + 2] = (Math.random() - 0.5) * 8;
+    sizes[i] = Math.random() * 0.06 + 0.01;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+  const mat = new THREE.PointsMaterial({
+    color: 0x3A4829, size: 0.07,
+    transparent: true, opacity: 0.14,
+    sizeAttenuation: true,
+  });
+
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+
+  let mx = 0, my = 0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth - 0.5) * 0.4;
+    my = (e.clientY / window.innerHeight - 0.5) * 0.4;
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  let tick = 0;
+  (function animate() {
+    requestAnimationFrame(animate);
+    tick += 0.004;
+    points.rotation.y = tick * 0.08 + mx * 0.3;
+    points.rotation.x = tick * 0.04 + my * 0.15;
+    camera.position.x += (mx * 0.5 - camera.position.x) * 0.03;
+    camera.position.y += (-my * 0.5 - camera.position.y) * 0.03;
+    renderer.render(scene, camera);
+  })();
+})();
+
+// ── CUSTOM CURSOR (gradient orb) ───────────────────────
+const orbCursor = document.getElementById('orb-cursor');
+let orbTX = 0, orbTY = 0, orbCX = 0, orbCY = 0;
+
+document.addEventListener('mousemove', e => {
+  orbTX = e.clientX;
+  orbTY = e.clientY;
+});
+
+(function orbLoop() {
+  orbCX += (orbTX - orbCX) * 0.1;
+  orbCY += (orbTY - orbCY) * 0.1;
+  orbCursor.style.transform = `translate(${orbCX - 260}px, ${orbCY - 260}px)`;
+  requestAnimationFrame(orbLoop);
+})();
+
+// ── PRELOADER ───────────────────────────────────────────
+const preEl  = document.getElementById('preloader');
+const preNum = document.getElementById('pre-count');
+const preBar = document.getElementById('pre-bar');
+
+const counter = { val: 0 };
+gsap.to(counter, {
+  val: 100,
+  duration: 1.6,
+  ease: 'power2.inOut',
+  onUpdate() { preNum.textContent = Math.round(counter.val); },
+  onComplete() {
+    gsap.to(preBar, { width: '100%', duration: 0.35, ease: 'power2.inOut' });
+    gsap.to(preEl, {
+      yPercent: -100, duration: 0.75, delay: 0.45,
+      ease: 'power4.inOut',
+      onComplete() {
+        preEl.style.display = 'none';
+        startAnimations();
+      }
+    });
+  }
+});
+
+// ── PAGE ANIMATIONS ─────────────────────────────────────
+function startAnimations() {
+
+  // Hero lines reveal
+  gsap.to('.line-inner', {
+    y: 0, duration: 1.05,
+    ease: 'power4.out',
+    stagger: 0.075,
+  });
+
+  gsap.to('.hero-eyebrow', {
+    opacity: 1, y: 0, duration: 0.9, delay: 0.35,
+    ease: 'power3.out',
+  });
+  gsap.from('.hero-eyebrow', { y: 16, duration: 0.9, delay: 0.35 });
+
+  gsap.to('.hero-bottom', {
+    opacity: 1, y: 0, duration: 0.9, delay: 0.7,
+    ease: 'power3.out',
+  });
+
+  gsap.to('.scroll-hint', {
+    opacity: 1, duration: 0.8, delay: 1.3,
+  });
+
+  // Services
+  gsap.from('.service-row', {
+    scrollTrigger: { trigger: '.service-row', start: 'top 80%' },
+    y: 36, opacity: 0,
+    duration: 0.65, stagger: 0.1,
+    ease: 'power3.out',
+  });
+
+  // Section titles
+  gsap.utils.toArray('.sec-title, .about-title, .cta-heading').forEach(el => {
+    gsap.from(el, {
+      scrollTrigger: { trigger: el, start: 'top 82%' },
+      y: 50, opacity: 0,
+      duration: 0.9, ease: 'power3.out',
+    });
+  });
+
+  // Stats counters
+  document.querySelectorAll('.stat-val').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      scrollTrigger: { trigger: el, start: 'top 80%' },
+      val: target, duration: 1.8,
+      ease: 'power2.out',
+      onUpdate() { el.textContent = Math.round(obj.val); }
+    });
+  });
+
+  // Portfolio cards
+  gsap.from('.port-card', {
+    scrollTrigger: { trigger: '#portScroll', start: 'top 80%' },
+    y: 50, opacity: 0,
+    duration: 0.75, stagger: 0.12,
+    ease: 'power3.out',
+  });
+
+  // About
+  gsap.from('.about-left', {
+    scrollTrigger: { trigger: '.about', start: 'top 75%' },
+    x: 40, opacity: 0, duration: 0.9, ease: 'power3.out',
+  });
+  gsap.from('.about-right', {
+    scrollTrigger: { trigger: '.about', start: 'top 75%' },
+    x: -40, opacity: 0, duration: 0.9, delay: 0.15, ease: 'power3.out',
+  });
+
+  // Process cards
+  gsap.from('.proc-card', {
+    scrollTrigger: { trigger: '.process-grid', start: 'top 78%' },
+    y: 50, opacity: 0,
+    duration: 0.7, stagger: 0.15,
+    ease: 'power3.out',
+  });
+
+  // CTA
+  gsap.from('.cta-eyebrow, .cta-heading, .cta-sub, .cta .btn-main', {
+    scrollTrigger: { trigger: '.cta', start: 'top 78%' },
+    y: 32, opacity: 0,
+    duration: 0.75, stagger: 0.12,
+    ease: 'power3.out',
+  });
+}
+
+// ── PORTFOLIO DRAG SCROLL ───────────────────────────────
+const portScroll = document.getElementById('portScroll');
+let isDragging = false, startX = 0, startScrollLeft = 0;
+
+portScroll.addEventListener('mousedown', e => {
+  isDragging = true;
+  portScroll.classList.add('dragging');
+  startX = e.pageX - portScroll.offsetLeft;
+  startScrollLeft = portScroll.scrollLeft;
+});
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+  portScroll.classList.remove('dragging');
+});
+portScroll.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  e.preventDefault();
+  const x = e.pageX - portScroll.offsetLeft;
+  portScroll.scrollLeft = startScrollLeft - (x - startX) * 1.5;
+});
+
+// ── SUN GLOW on לזרוח (cursor-tracking) ────────────────
+(function() {
+  const em = document.querySelector('.cta-heading em');
+  if (!em) return;
+
+  let gx = 0, gy = 0, tx = 0, ty = 0;
+  let time = 0, progress = 0, dir = 0, rafId = null;
+
+  function shadow(x, y, pulse, p) {
+    const s = p * (0.72 + pulse * 0.28);
+    return [
+      `${x}px ${y}px ${Math.round(5*p)}px rgba(255,255,255,0.7)`,
+      `${x}px ${y}px ${Math.round(12*p)}px rgba(255,255,255,0.5)`,
+      `${(x*.6).toFixed(1)}px ${(y*.6).toFixed(1)}px ${Math.round(26*s)}px #FFD700`,
+      `0 0 ${Math.round(50*s)}px #FFA500`,
+      `0 0 ${Math.round(90*s)}px #FF7000`,
+      `0 0 ${Math.round(150*s)}px rgba(255,100,0,${(0.25*p).toFixed(2)})`,
+      `0 0 ${Math.round(240*s)}px rgba(255,60,0,${(0.1*p).toFixed(2)})`,
+    ].join(', ');
+  }
+
+  function loop() {
+    time += 0.018;
+    const pulse = Math.sin(time) * 0.5 + 0.5;
+    gx += (tx - gx) * 0.12;
+    gy += (ty - gy) * 0.12;
+    if (dir ===  1) progress = Math.min(1, progress + 0.032);
+    if (dir === -1) {
+      progress = Math.max(0, progress - 0.032);
+      if (progress === 0) { dir = 0; em.classList.remove('sun-on'); }
+    }
+    em.style.textShadow = progress > 0 ? shadow(gx, gy, pulse, progress) : '';
+    if (progress > 0 || dir !== 0) rafId = requestAnimationFrame(loop);
+    else rafId = null;
+  }
+
+  em.addEventListener('mouseenter', () => {
+    em.classList.add('sun-on');
+    dir = 1;
+    if (!rafId) rafId = requestAnimationFrame(loop);
+  });
+
+  em.addEventListener('mousemove', e => {
+    const r = em.getBoundingClientRect();
+    tx = (e.clientX - (r.left + r.width  / 2)) / r.width  * 22;
+    ty = (e.clientY - (r.top  + r.height / 2)) / r.height * 11;
+  });
+
+  em.addEventListener('mouseleave', () => {
+    dir = -1; tx = 0; ty = 0;
+    if (!rafId) rafId = requestAnimationFrame(loop);
+  });
+})();
+
+</script>
+</body>
+</html>
