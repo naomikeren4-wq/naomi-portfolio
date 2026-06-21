@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>נעמי קרן — UX Design</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet" />
   <!-- GSAP -->
@@ -98,7 +98,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 100;
+      z-index: 200;
     }
     .nav-logo {
       font-size: 17px; font-weight: 700;
@@ -112,6 +112,51 @@
       opacity: 0.7; transition: opacity 0.2s;
     }
     .nav-links a:hover { opacity: 1; }
+
+    /* ── HAMBURGER ─────────────────────────────────────── */
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none; padding: 4px;
+      cursor: pointer; z-index: 200;
+    }
+    .hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--cream);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: flex;
+      position: fixed; top: 0; left: 0; right: 0;
+      height: auto;
+      padding: 80px 0 32px;
+      background: rgba(247, 244, 239, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 150;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 4px;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .mobile-menu.open { opacity: 1; pointer-events: auto; visibility: visible; }
+    .mobile-menu a {
+      font-size: 17px;
+      font-weight: 600; letter-spacing: -0.3px;
+      color: var(--cream); text-decoration: none;
+      opacity: 0.85;
+      padding: 10px 0;
+      width: 100%; text-align: center;
+    }
+    .mobile-menu a:hover { opacity: 1; }
+    .mobile-menu a + a { border-top: 1px solid rgba(58,72,41,0.15); width: 100%; text-align: center; }
 
     /* ── HERO ──────────────────────────────────────────── */
     .hero {
@@ -466,7 +511,7 @@
     }
     .cta-eyebrow {
       font-size: 14px; letter-spacing: 4px;
-      text-transform: uppercase; opacity: 0.72;
+      text-transform: uppercase; opacity: 0.9;
     }
     .cta-heading {
       font-size: clamp(48px, 9vw, 120px);
@@ -484,9 +529,10 @@
     }
     .cta-sub {
       font-size: clamp(15px, 1.5vw, 18px);
-      font-weight: 300; color: var(--muted);
+      font-weight: 300; color: var(--cream);
       max-width: 420px; line-height: 1.7;
     }
+    .mobile-br { display: none; }
 
     /* ── FOOTER ────────────────────────────────────────── */
     footer {
@@ -507,6 +553,7 @@
     @media (max-width: 768px) {
       nav { padding: 20px 24px; }
       .nav-links { display: none; }
+      .hamburger { display: flex; }
       body { cursor: auto; }
       #cur-dot, #cur-ring { display: none; }
 
@@ -536,6 +583,7 @@
 
       .cta { padding: 100px 24px; }
       .cta-heading { letter-spacing: -2px; }
+      .mobile-br { display: inline; }
 
       footer { padding: 32px 24px; flex-direction: column; gap: 12px; text-align: center; }
     }
@@ -564,7 +612,18 @@
       <li><a href="#about">עלי</a></li>
       <li><a href="#contact">צרו קשר</a></li>
     </ul>
+    <button class="hamburger" aria-label="תפריט" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#services" class="mobile-link">שירותים</a>
+    <a href="#work" class="mobile-link">עבודות</a>
+    <a href="#about" class="mobile-link">עלי</a>
+    <a href="#contact" class="mobile-link">צרו קשר</a>
+  </div>
 
   <!-- PAGE CONTENT -->
   <div class="page-content">
@@ -714,7 +773,7 @@
   <section class="cta" id="contact">
     <p class="cta-eyebrow">מוכנים להתחיל?</p>
     <h2 class="cta-heading">הייחוד שלכם<br>מחכה<br><em>ל<span style="display:inline-block;width:0.04em"></span>זרוח.</em></h2>
-    <p class="cta-sub">שיחת היכרות של 10 דקות — בחינם, בלי התחייבות. בואו נראה אם יש התאמה.</p>
+    <p class="cta-sub">שיחת היכרות של 10 דקות — בחינם, בלי התחייבות.<br class="mobile-br"> בואו נראה אם יש התאמה.</p>
     <a href="mailto:naomi@naomikeren.com" class="btn-main" style="font-size:19px;padding:24px 54px;gap:22px;">לשיחת היכרות חינם <span>&#8592;</span></a>
   </section>
 
@@ -1000,6 +1059,31 @@ portScroll.addEventListener('mousemove', e => {
     dir = -1; tx = 0; ty = 0;
     if (!rafId) rafId = requestAnimationFrame(loop);
   });
+})();
+
+// ── MOBILE MENU ──────────────────────────────────────────
+(function() {
+  const btn = document.getElementById('hamburger');
+  const menu = document.getElementById('mobile-menu');
+  if (!btn || !menu) return;
+
+  function openMenu() {
+    menu.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    menu.classList.remove('open');
+    btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  btn.addEventListener('click', () => {
+    btn.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
 })();
 
 </script>
