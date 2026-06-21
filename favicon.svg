@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <radialGradient id="g1" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFD200"/>
+      <stop offset="35%" stop-color="#FF8C00"/>
+      <stop offset="100%" stop-color="#FF2878"/>
+    </radialGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="1.5"/>
+    </filter>
+  </defs>
+  <circle cx="16" cy="16" r="13" fill="url(#g1)" filter="url(#blur)"/>
+</svg>
