@@ -73,7 +73,10 @@
       text-align: center;
     }
     .pre-word.show { opacity: 1; transform: translateY(0); }
-    #pre-w3 { color: #C01458; }
+    #pre-w3 {
+      color: #C01458;
+      transition: color 0.4s ease, text-shadow 0.4s ease, opacity 0.55s ease, transform 0.55s ease;
+    }
     #pre-w3.glow {
       color: #FFFDE0;
       text-shadow:
@@ -81,7 +84,6 @@
         0 0 30px #FFD700,
         0 0 60px #FFA500,
         0 0 100px rgba(255,100,0,0.5);
-      transition: color 0.4s ease, text-shadow 0.4s ease, opacity 0.55s ease, transform 0.55s ease;
     }
 
     /* ── CURSOR ────────────────────────────────────────── */
