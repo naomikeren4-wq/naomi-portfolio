@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>לפני שנפגש | נעמי קרן</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<!--
+  ══════════════════════════════════════════════════════
+  הגדרת שליחת אימייל (Formspree)
+  ══════════════════════════════════════════════════════
+  1. כנסי ל-formspree.io וצרי חשבון חינמי
+  2. צרי טופס חדש ← קבלי את מזהה הטופס (נראה כך: xabc1234)
+  3. החליפי את 'YOUR_FORM_ID' בשורה שמתחת במזהה שלך
+  4. ב-Formspree, הפעילי "Email Notifications" כדי שהלקוחה תקבל עותק
+  ══════════════════════════════════════════════════════
+-->
+<script>const FORMSPREE_ID = 'YOUR_FORM_ID';</script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #F7F4EF;
+  --green:   #3A4829;
+  --muted:   #5C6B4A;
+  --accent:  #E8A87C;
+  --border:  rgba(58,72,41,0.14);
+  --light:   rgba(58,72,41,0.05);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Heebo', sans-serif;
+  background: var(--bg);
+  color: var(--green);
+  overflow: hidden;
+}
+
+/* ── PROGRESS BAR ─────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--border);
+  z-index: 100;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+
+/* ── TOP BAR ──────────────────────────────── */
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 18px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+.logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+  opacity: 0.85;
+}
+.q-counter {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.q-counter.show { opacity: 1; }
+
+/* ── SCREENS ──────────────────────────────── */
+#screens {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px clamp(24px, 10vw, 120px) 100px;
+  opacity: 0;
+  transform: translateY(36px);
+  pointer-events: none;
+  transition: opacity 0.38s ease, transform 0.38s ease;
+}
+.screen.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+.screen.exit-up {
+  opacity: 0;
+  transform: translateY(-36px);
+  pointer-events: none;
+}
+
+/* ── INTRO SCREEN ─────────────────────────── */
+.eyebrow {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.intro-title {
+  font-size: clamp(42px, 7vw, 86px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 36px;
+}
+.intro-body {
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 300;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 480px;
+  margin-bottom: 20px;
+}
+.intro-body strong {
+  color: var(--green);
+  font-weight: 500;
+}
+.intro-note {
+  font-size: 12px;
+  color: var(--muted);
+  opacity: 0.65;
+  margin-top: 16px;
+  max-width: 420px;
+  line-height: 1.6;
+}
+
+/* ── QUESTION SCREENS ─────────────────────── */
+.q-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.q-text {
+  font-size: clamp(20px, 3.2vw, 38px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  max-width: 600px;
+  margin-bottom: 8px;
+}
+.q-hint {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 500px;
+}
+
+textarea, input[type="text"], input[type="email"] {
+  width: 100%;
+  max-width: 580px;
+  border: none;
+  border-bottom: 2px solid var(--border);
+  background: transparent;
+  font-family: 'Heebo', sans-serif;
+  color: var(--green);
+  outline: none;
+  padding: 10px 0 14px;
+  direction: rtl;
+  transition: border-color 0.2s;
+}
+textarea:focus, input:focus {
+  border-color: var(--accent);
+}
+textarea::placeholder, input::placeholder {
+  color: rgba(58,72,41,0.22);
+}
+textarea {
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 300;
+  line-height: 1.65;
+  resize: none;
+  overflow: hidden;
+  min-height: 54px;
+}
+input[type="text"], input[type="email"] {
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 400;
+}
+.enter-hint {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.55;
+  line-height: 1.7;
+}
+.enter-hint kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 10px;
+  background: rgba(255,255,255,0.6);
+}
+
+/* ── BUTTONS ──────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 100px;
+  font-family: 'Heebo', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--green);
+  color: var(--bg);
+}
+.btn-primary:hover {
+  background: #2d3820;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(58,72,41,0.2);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  background: var(--light);
+  color: var(--green);
+}
+
+/* ── NAV BAR ──────────────────────────────── */
+.nav-bar {
+  position: fixed;
+  bottom: 28px;
+  left: 0; right: 0;
+  padding: 0 clamp(24px, 10vw, 120px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 99;
+}
+.btn-back {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 8px;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+  font-family: inherit;
+}
+.btn-back:hover { color: var(--green); transform: translateX(2px); }
+.btn-back:disabled { opacity: 0.2; cursor: default; transform: none; }
+.spacer { flex: 1; }
+
+/* ── THANK YOU SCREEN ─────────────────────── */
+.screen-thankyou {
+  overflow-y: auto;
+  padding-top: 80px;
+  padding-bottom: 120px;
+}
+.ty-title {
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.0;
+  margin-bottom: 16px;
+}
+.ty-sub {
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 460px;
+  margin-bottom: 40px;
+}
+.summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px 32px;
+  max-width: 600px;
+  width: 100%;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.05);
+}
+.summary-item + .summary-item {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.summary-q {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.summary-a {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--green);
+  white-space: pre-wrap;
+}
+.send-status {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  max-width: 580px;
+}
+.send-status.show { display: flex; }
+
+/* dot spinner */
+.dots { display: inline-flex; gap: 4px; }
+.dots span {
+  width: 5px; height: 5px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: bounce 1.2s ease-in-out infinite;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce {
+  0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ── ORB ──────────────────────────────────── */
+#orb {
+  width: 520px; height: 520px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 36%, rgba(255,210,0,1) 0%, rgba(255,140,0,0.7) 30%, rgba(255,140,0,0.15) 58%, transparent 72%),
+    radial-gradient(circle at 68% 65%, rgba(255,40,120,0.9) 0%, rgba(255,90,80,0.55) 30%, rgba(255,90,80,0.1) 58%, transparent 72%);
+  filter: blur(36px);
+  position: fixed; top: -60px; left: -80px;
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+}
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media (max-width: 600px) {
+  .top-bar { padding: 16px 20px; }
+  .nav-bar { padding: 0 20px; bottom: 20px; }
+  .summary-card { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="orb"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="top-bar">
+  <a class="logo" href="https://naomikeren.com/" target="_blank">נעמי קרן</a>
+  <span class="q-counter" id="q-counter"></span>
+</div>
+
+<div id="screens">
+
+  <!-- 0: INTRO -->
+  <div class="screen active" data-idx="0">
+    <p class="eyebrow">לפני שנפגש</p>
+    <h1 class="intro-title">מוכנים לזרוח?</h1>
+    <p class="intro-body">
+      כמה שאלות לפני הפגישה שלנו — לא בשביל להכין "תשובות נכונות", אלא בשביל להתחיל לזוז פנימה.<br>
+      לגמרי בסדר אם משהו לא יהיה מסודר.
+      זה רגע להפעיל מודעות, להזיז גלגלים.
+      בפגישה נחדד ביחד.
+    </p>
+    <button class="btn btn-primary" id="intro-btn" style="align-self:flex-start;padding:16px 40px;font-size:17px">בואו נתחיל ←</button>
+    <p class="intro-note">התשובות ישלחו לנעמי לפני הפגישה ויחזרו אליכם/ן כסיכום.</p>
+  </div>
+
+  <!-- 1: NAME -->
+  <div class="screen" data-idx="1">
+    <p class="q-label">רגע לפני</p>
+    <h2 class="q-text">מה שמך?</h2>
+    <input type="text" id="ans-name" placeholder="שם פרטי..." autocomplete="given-name">
+    <p class="enter-hint">לחצו <kbd>Enter ↵</kbd> להמשך</p>
+  </div>
+
+  <!-- 2: EMAIL -->
+  <div class="screen" data-idx="2">
+    <p class="q-label">עוד שנייה</p>
+    <h2 class="q-text">מה האימייל שלך?</h2>
+    <p class="q-hint">נשלח לכם/ן את הסיכום אחרי שתסיימו</p>
+    <input type="email" id="ans-email" placeholder="your@email.com" dir="ltr" autocomplete="email">
+    <p class="enter-hint">לחצו <kbd>Enter ↵</kbd> להמשך</p>
+  </div>
+
+  <!-- 3–13: QUESTIONS (generated by JS) -->
+
+  <!-- 14: THANK YOU (generated by JS) -->
+
+</div>
+
+<!-- NAV BAR -->
+<div class="nav-bar" id="nav-bar" style="display:none">
+  <button class="btn-back" id="btn-back" title="חזרה">→</button>
+  <div class="spacer"></div>
+  <button class="btn btn-ghost" id="btn-skip">דלגו</button>
+  <button class="btn btn-primary" id="btn-next">המשיכו ←</button>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const questions = [
+  {
+    label: '1 / 11',
+    text: 'ספרו לי על לקוח/ה שיצא/ה מכם מאושר/ת במיוחד — מה קרה שם?',
+    hint: 'ספרו כמו שעולה לכם, בלי לסנן'
+  },
+  {
+    label: '2 / 11',
+    text: 'יש עבודה שעשיתם שאתם הכי גאים בה?',
+    hint: 'לאו דווקא הכי מוצלחת — מה שהכי מרגיש כמוכם'
+  },
+  {
+    label: '3 / 11',
+    text: 'מה לקוחות אומרים עליכם שוב ושוב?',
+    hint: 'פידבקים, מחמאות, דברים שחוזרים'
+  },
+  {
+    label: '4 / 11',
+    text: 'מה אתם עושים אחרת מאחרים בתחום שלכם?',
+    hint: 'גם אם זה נשמע לכם מובן מאליו — בדיוק זה מעניין אותי'
+  },
+  {
+    label: '5 / 11',
+    text: 'יש משהו שאתם עושים "כמובן מאליו" שלקוחות מופתעים ממנו?',
+    hint: 'לרוב שם מסתתר הייחוד האמיתי'
+  },
+  {
+    label: '6 / 11',
+    text: 'מי הלקוח/ה שאתם הכי נהנים לעבוד איתו/ה?',
+    hint: 'מה מאפיין אותו/ה? מה גורם לשיחה לזרום?'
+  },
+  {
+    label: '7 / 11',
+    text: 'יש סוג לקוח שאתם מעדיפים לא לקחת?',
+    hint: 'זה עוזר להבין את הייחוד מהכיוון ההפוך'
+  },
+  {
+    label: '8 / 11',
+    text: 'מה הפעולה שהכי חשוב לכם שמבקרים יעשו באתר שלכם?',
+    hint: 'פנייה, רכישה, הרשמה, שיחה...'
+  },
+  {
+    label: '9 / 11',
+    text: 'מאיפה מגיעים רוב הלקוחות שלכם היום?',
+    hint: 'המלצות, אינסטגרם, גוגל, פייסבוק...'
+  },
+  {
+    label: '10 / 11',
+    text: 'יש אתר שאתם אוהבים?',
+    hint: 'לינק + מה אתם אוהבים בו — לא חייב להיות בתחום שלכם'
+  },
+  {
+    label: '11 / 11',
+    text: 'איך אתם רואים את העסק שלכם עוד שנה-שנתיים?',
+    hint: 'תנו לעצמכם לחלום קצת'
+  }
+];
+
+const TOTAL_Q = questions.length;
+const SCREEN_INTRO  = 0;
+const SCREEN_NAME   = 1;
+const SCREEN_EMAIL  = 2;
+const SCREEN_Q0     = 3;                      // first question
+const SCREEN_QLast  = 3 + TOTAL_Q - 1;        // last question  = 13
+const SCREEN_THANKS = 3 + TOTAL_Q;            // thank you      = 14
+
+let current = 0;
+let nameVal = '';
+let emailVal = '';
+const answers = Array(TOTAL_Q).fill('');
+
+// ─── BUILD QUESTION SCREENS ──────────────────────────────────────────────────
+
+const screensEl = document.getElementById('screens');
+
+questions.forEach((q, i) => {
+  const div = document.createElement('div');
+  div.className = 'screen';
+  div.dataset.idx = SCREEN_Q0 + i;
+  div.innerHTML = `
+    <p class="q-label">${q.label}</p>
+    <h2 class="q-text">${q.text}</h2>
+    ${q.hint ? `<p class="q-hint">${q.hint}</p>` : ''}
+    <textarea id="ans-q${i}" placeholder="כתבו כאן..." rows="1"></textarea>
+    <p class="enter-hint">
+      <kbd>Shift + Enter</kbd> לשורה חדשה &nbsp;&nbsp;·&nbsp;&nbsp; <kbd>Enter ↵</kbd> להמשך
+    </p>
+  `;
+  screensEl.appendChild(div);
+
+  // auto-resize textarea
+  const ta = div.querySelector('textarea');
+  ta.addEventListener('input', () => {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 260) + 'px';
+  });
+});
+
+// ─── BUILD THANK YOU SCREEN ──────────────────────────────────────────────────
+
+const tyDiv = document.createElement('div');
+tyDiv.className = 'screen screen-thankyou';
+tyDiv.dataset.idx = SCREEN_THANKS;
+tyDiv.innerHTML = `
+  <h2 class="ty-title">הגיע הזמן<br>לזרוח.</h2>
+  <p class="ty-sub">
+    תודה שהקדשתם את הזמן.<br>
+    נעמי תגיע לפגישה מוכנה ועם המון שאלות טובות בשבילכם.
+  </p>
+  <div class="summary-card" id="summary-card"></div>
+  <button class="btn btn-primary" id="copy-btn">העתיקו את הסיכום ←</button>
+  <div class="send-status" id="send-status">
+    <span class="dots"><span></span><span></span><span></span></span>
+    שולח לנעמי...
+  </div>
+`;
+screensEl.appendChild(tyDiv);
+
+// ─── ALL SCREENS ─────────────────────────────────────────────────────────────
+
+const allScreens = () => document.querySelectorAll('.screen');
+
+// ─── SHOW SCREEN ─────────────────────────────────────────────────────────────
+
+function showScreen(idx) {
+  allScreens().forEach(s => {
+    const sIdx = parseInt(s.dataset.idx);
+    s.classList.remove('active', 'exit-up');
+    if (sIdx === idx) {
+      s.classList.add('active');
+    }
+  });
+
+  current = idx;
+  updateUI();
+
+  // Focus first input after transition
+  setTimeout(() => {
+    const screen = document.querySelector(`.screen[data-idx="${idx}"]`);
+    if (!screen) return;
+    const el = screen.querySelector('textarea, input[type="text"], input[type="email"]');
+    if (el) el.focus();
+  }, 400);
+}
+
+function updateUI() {
+  const isIntro   = current === SCREEN_INTRO;
+  const isThanks  = current === SCREEN_THANKS;
+  const isQ       = current >= SCREEN_Q0 && current <= SCREEN_QLast;
+  const nav       = document.getElementById('nav-bar');
+
+  // Nav bar
+  nav.style.display = (isIntro || isThanks) ? 'none' : 'flex';
+
+  // Back
+  const btnBack = document.getElementById('btn-back');
+  btnBack.disabled = current <= SCREEN_NAME;
+
+  // Skip: only for questions
+  document.getElementById('btn-skip').style.display = isQ ? 'inline-flex' : 'none';
+
+  // Next button label
+  document.getElementById('btn-next').textContent =
+    current === SCREEN_QLast ? 'סיום ←' : 'המשיכו ←';
+
+  // Progress & counter
+  const progress = document.getElementById('progress');
+  const counter  = document.getElementById('q-counter');
+
+  if (isQ) {
+    const qIdx = current - SCREEN_Q0;
+    progress.style.width = Math.round(((qIdx + 1) / TOTAL_Q) * 100) + '%';
+    counter.textContent = `${qIdx + 1} / ${TOTAL_Q}`;
+    counter.classList.add('show');
+  } else if (isThanks) {
+    progress.style.width = '100%';
+    counter.classList.remove('show');
+  } else {
+    progress.style.width = '0%';
+    counter.classList.remove('show');
+  }
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+
+function saveCurrentAnswer() {
+  if (current === SCREEN_NAME) {
+    nameVal = document.getElementById('ans-name').value.trim();
+  } else if (current === SCREEN_EMAIL) {
+    emailVal = document.getElementById('ans-email').value.trim();
+  } else if (current >= SCREEN_Q0 && current <= SCREEN_QLast) {
+    answers[current - SCREEN_Q0] = document.getElementById(`ans-q${current - SCREEN_Q0}`).value.trim();
+  }
+}
+
+function next() {
+  saveCurrentAnswer();
+
+  if (current === SCREEN_QLast) {
+    doSubmit();
+    return;
+  }
+
+  // Animate current out
+  const cur = document.querySelector(`.screen[data-idx="${current}"]`);
+  if (cur) cur.classList.add('exit-up');
+
+  setTimeout(() => {
+    showScreen(current + 1);
+  }, 80);
+}
+
+function back() {
+  if (current <= SCREEN_NAME) return;
+  saveCurrentAnswer();
+  showScreen(current - 1);
+}
+
+function skip() {
+  if (current >= SCREEN_Q0 && current <= SCREEN_QLast) {
+    answers[current - SCREEN_Q0] = '';
+  }
+  if (current < SCREEN_QLast) {
+    const cur = document.querySelector(`.screen[data-idx="${current}"]`);
+    if (cur) cur.classList.add('exit-up');
+    setTimeout(() => showScreen(current + 1), 80);
+  } else {
+    doSubmit();
+  }
+}
+
+// ─── KEYBOARD ────────────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const screen = document.querySelector(`.screen[data-idx="${current}"]`);
+    const hasTextarea = screen && screen.querySelector('textarea');
+    if (hasTextarea && !e.shiftKey) {
+      e.preventDefault();
+      next();
+    } else if (!hasTextarea) {
+      next();
+    }
+  }
+  if (e.key === 'Escape') {
+    back();
+  }
+});
+
+// ─── SUBMIT ───────────────────────────────────────────────────────────────────
+
+async function doSubmit() {
+  showScreen(SCREEN_THANKS);
+  buildSummary();
+
+  const statusEl = document.getElementById('send-status');
+
+  if (!FORMSPREE_ID || FORMSPREE_ID === 'YOUR_FORM_ID') {
+    statusEl.innerHTML = '<span style="opacity:0.6">כדי לשלוח אוטומטית — חברי Formspree לקוד (ראי הוראות בקובץ)</span>';
+    statusEl.classList.add('show');
+    return;
+  }
+
+  statusEl.innerHTML = `
+    <span class="dots"><span></span><span></span><span></span></span>
+    שולחת לנעמי...
+  `;
+  statusEl.classList.add('show');
+
+  const payload = {
+    _replyto: emailVal,
+    _subject: `שאלון לפני פגישה — ${nameVal}`,
+    שם: nameVal,
+    אימייל: emailVal,
+  };
+  questions.forEach((q, i) => {
+    payload[`ש${i + 1} — ${q.text}`] = answers[i] || '(דולגה)';
+  });
+
+  try {
+    const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      statusEl.innerHTML = '✓ נשלח לנעמי בהצלחה';
+      statusEl.style.color = 'var(--green)';
+    } else {
+      throw new Error();
+    }
+  } catch {
+    statusEl.innerHTML = 'לא הצלחנו לשלוח — אבל אפשר להעתיק את הסיכום למטה ולשלוח ידנית';
+  }
+}
+
+// ─── SUMMARY ─────────────────────────────────────────────────────────────────
+
+function buildSummary() {
+  const card = document.getElementById('summary-card');
+  let html = '';
+
+  const addItem = (label, val) => {
+    html += `
+      <div class="summary-item">
+        <div class="summary-q">${label}</div>
+        <div class="summary-a">${val}</div>
+      </div>`;
+  };
+
+  if (nameVal)  addItem('שם', nameVal);
+  if (emailVal) addItem('אימייל', emailVal);
+
+  questions.forEach((q, i) => {
+    if (answers[i]) addItem(q.text, answers[i]);
+  });
+
+  card.innerHTML = html || '<p style="color:var(--muted);font-size:14px;font-weight:300">לא מילאת תשובות</p>';
+
+  // Copy button
+  document.getElementById('copy-btn').addEventListener('click', copyAll);
+}
+
+function copyAll() {
+  let text = `שאלון לפני פגישה עם נעמי קרן\n`;
+  text += `${'─'.repeat(36)}\n\n`;
+  if (nameVal)  text += `שם: ${nameVal}\n`;
+  if (emailVal) text += `אימייל: ${emailVal}\n`;
+  text += '\n';
+  questions.forEach((q, i) => {
+    if (answers[i]) text += `${q.text}\n${answers[i]}\n\n`;
+  });
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ הועתק!';
+    setTimeout(() => { btn.textContent = 'העתיקי את הסיכום ←'; }, 2500);
+  }).catch(() => {
+    alert('לא הצלחנו להעתיק — סמני את הטקסט ידנית');
+  });
+}
+
+// ─── EVENT LISTENERS ─────────────────────────────────────────────────────────
+
+document.getElementById('intro-btn').addEventListener('click', next);
+document.getElementById('btn-next').addEventListener('click', next);
+document.getElementById('btn-back').addEventListener('click', back);
+document.getElementById('btn-skip').addEventListener('click', skip);
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+showScreen(0);
+
+</script>
+</body>
+</html>
