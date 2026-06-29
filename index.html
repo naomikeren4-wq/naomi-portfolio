@@ -73,6 +73,18 @@
       text-align: center;
     }
     .pre-word.show { opacity: 1; transform: translateY(0); }
+    #pre-sun {
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,210,0,0.7) 0%, rgba(255,120,0,0.4) 35%, transparent 70%);
+      left: 50%; top: 50%;
+      transform: translate(-50%, 10%);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    #pre-sun.show { opacity: 1; }
     #pre-w3 { color: #C01458; }
 
     /* ── CURSOR ────────────────────────────────────────── */
@@ -603,6 +615,7 @@
 
   <!-- PRELOADER -->
   <div id="preloader">
+    <div id="pre-sun"></div>
     <span class="pre-logo">נעמי קרן</span>
     <span class="pre-word" id="pre-w1">הגיע</span>
     <span class="pre-word" id="pre-w2">הזמן</span>
@@ -905,9 +918,10 @@ setTimeout(() => preW1.classList.add('show'), 150);
 setTimeout(() => preW2.classList.add('show'), 650);
 setTimeout(() => preW3.classList.add('show'), 1150);
 setTimeout(() => {
+  document.getElementById('pre-sun').classList.add('show');
   preW3.style.transition = 'color 0.45s ease';
   preW3.style.color = '#FFFDE0';
-  preW3.style.textShadow = '0 0 12px rgba(255,255,255,0.9), 0 0 30px #FFD700, 0 0 60px #FFA500, 0 0 100px rgba(255,100,0,0.6)';
+  preW3.style.textShadow = '0 0 16px rgba(255,255,255,1), 0 0 40px #FFD700, 0 0 80px #FFA500, 0 0 120px rgba(255,100,0,0.7)';
 }, 1750);
 setTimeout(() => {
   gsap.to(preEl, {
