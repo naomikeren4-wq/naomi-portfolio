@@ -74,20 +74,6 @@
     }
     .pre-word.show { opacity: 1; transform: translateY(0); }
     #pre-w3 { color: #C01458; }
-    #pre-w3.glow {
-      animation: sunGlow 0.5s ease forwards;
-    }
-    @keyframes sunGlow {
-      0%   { color: #C01458; text-shadow: none; }
-      100% {
-        color: #FFFDE0;
-        text-shadow:
-          0 0 12px rgba(255,255,255,0.9),
-          0 0 30px #FFD700,
-          0 0 60px #FFA500,
-          0 0 100px rgba(255,100,0,0.6);
-      }
-    }
 
     /* ── CURSOR ────────────────────────────────────────── */
     #orb-cursor {
@@ -899,6 +885,16 @@ document.addEventListener('mousemove', e => {
   requestAnimationFrame(orbLoop);
 })();
 
+// ── FORCE ANIMATIONS (Netlify-safe fallback) ────────────
+(function() {
+  const s = document.createElement('style');
+  s.textContent = [
+    '.marquee-track{animation:ticker 22s linear infinite!important;}',
+    '@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}'
+  ].join('');
+  document.head.appendChild(s);
+})();
+
 // ── PRELOADER ───────────────────────────────────────────
 const preEl = document.getElementById('preloader');
 const preW1 = document.getElementById('pre-w1');
@@ -908,7 +904,11 @@ const preW3 = document.getElementById('pre-w3');
 setTimeout(() => preW1.classList.add('show'), 150);
 setTimeout(() => preW2.classList.add('show'), 650);
 setTimeout(() => preW3.classList.add('show'), 1150);
-setTimeout(() => preW3.classList.add('glow'), 1750);
+setTimeout(() => {
+  preW3.style.transition = 'color 0.45s ease';
+  preW3.style.color = '#FFFDE0';
+  preW3.style.textShadow = '0 0 12px rgba(255,255,255,0.9), 0 0 30px #FFD700, 0 0 60px #FFA500, 0 0 100px rgba(255,100,0,0.6)';
+}, 1750);
 setTimeout(() => {
   gsap.to(preEl, {
     yPercent: -100, duration: 0.75,
