@@ -461,13 +461,13 @@ portScroll.addEventListener('mousemove', e => {
   function shadow(x, y, pulse, p) {
     const s = p * (0.72 + pulse * 0.28);
     return [
-      `${x}px ${y}px ${Math.round(5*p)}px rgba(255,255,255,0.7)`,
-      `${x}px ${y}px ${Math.round(12*p)}px rgba(255,255,255,0.5)`,
-      `${(x*.6).toFixed(1)}px ${(y*.6).toFixed(1)}px ${Math.round(26*s)}px #FFD700`,
-      `0 0 ${Math.round(50*s)}px #FFA500`,
-      `0 0 ${Math.round(90*s)}px #FF7000`,
-      `0 0 ${Math.round(150*s)}px rgba(255,100,0,${(0.25*p).toFixed(2)})`,
-      `0 0 ${Math.round(240*s)}px rgba(255,60,0,${(0.1*p).toFixed(2)})`,
+      `0 0 ${Math.round(8*p)}px rgba(255,255,255,1)`,
+      `0 0 ${Math.round(20*p)}px rgba(255,255,255,0.9)`,
+      `${x}px ${y}px ${Math.round(35*p)}px rgba(255,255,255,0.7)`,
+      `${(x*.6).toFixed(1)}px ${(y*.6).toFixed(1)}px ${Math.round(55*s)}px #FFD700`,
+      `0 0 ${Math.round(80*s)}px #FFA500`,
+      `0 0 ${Math.round(130*s)}px #FF7000`,
+      `0 0 ${Math.round(200*s)}px rgba(255,100,0,${(0.35*p).toFixed(2)})`,
     ].join(', ');
   }
 
