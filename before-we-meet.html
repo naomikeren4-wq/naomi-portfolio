@@ -380,7 +380,7 @@ input[type="text"], input[type="email"] {
   .top-bar { padding: 20px 24px; }
   .nav-bar { padding: 0 20px; bottom: 20px; }
   .summary-card { padding: 20px; }
-  #orb { width: 320px; height: 320px; }
+  #orb { width: 320px; height: 320px; top: -120px !important; left: -120px !important; transform: none !important; }
 }
 </style>
 </head>
@@ -829,9 +829,9 @@ document.getElementById('btn-skip').addEventListener('click', skip);
 
 showScreen(0);
 
-// ─── ORB CURSOR FOLLOW ────────────────────────────────────────────────────────
+// ─── ORB CURSOR FOLLOW (desktop only) ────────────────────────────────────────
 
-(function() {
+if (window.innerWidth > 600) {
   const orb = document.getElementById('orb');
   let mx = window.innerWidth / 2, my = window.innerHeight / 2;
   let cx = mx, cy = my;
@@ -842,7 +842,8 @@ showScreen(0);
     orb.style.transform = `translate(${cx - 260}px, ${cy - 260}px)`;
     requestAnimationFrame(lerp);
   })();
-})();
+}
+
 
 </script>
 </body>
