@@ -60,19 +60,18 @@ html, body {
 .top-bar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  padding: 18px 36px;
+  padding: 28px 52px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 99;
 }
 .logo {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--green);
   text-decoration: none;
-  letter-spacing: -0.3px;
-  opacity: 0.85;
+  letter-spacing: -0.5px;
 }
 .q-counter {
   font-size: 12px;
@@ -133,7 +132,7 @@ html, body {
   font-weight: 300;
   line-height: 1.9;
   color: var(--muted);
-  max-width: 480px;
+  max-width: 620px;
   margin-bottom: 20px;
 }
 .intro-body strong {
@@ -157,6 +156,8 @@ html, body {
   text-transform: uppercase;
   color: var(--accent);
   margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
 }
 .q-text {
   font-size: clamp(20px, 3.2vw, 38px);
@@ -192,7 +193,7 @@ textarea:focus, input:focus {
   border-color: var(--accent);
 }
 textarea::placeholder, input::placeholder {
-  color: rgba(58,72,41,0.22);
+  color: rgba(58,72,41,0.38);
 }
 textarea {
   font-size: clamp(16px, 1.8vw, 20px);
@@ -241,11 +242,11 @@ input[type="text"], input[type="email"] {
 .btn-primary {
   background: var(--green);
   color: var(--bg);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
 }
 .btn-primary:hover {
-  background: #2d3820;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(58,72,41,0.2);
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 16px 40px rgba(58,72,41,0.2);
 }
 .btn-ghost {
   background: transparent;
@@ -367,17 +368,19 @@ input[type="text"], input[type="email"] {
     radial-gradient(circle at 32% 36%, rgba(255,210,0,1) 0%, rgba(255,140,0,0.7) 30%, rgba(255,140,0,0.15) 58%, transparent 72%),
     radial-gradient(circle at 68% 65%, rgba(255,40,120,0.9) 0%, rgba(255,90,80,0.55) 30%, rgba(255,90,80,0.1) 58%, transparent 72%);
   filter: blur(36px);
-  position: fixed; top: -60px; left: -80px;
+  position: fixed; top: 0; left: 0;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: multiply;
+  will-change: transform;
 }
 
 /* ── RESPONSIVE ───────────────────────────── */
 @media (max-width: 600px) {
-  .top-bar { padding: 16px 20px; }
+  .top-bar { padding: 20px 24px; }
   .nav-bar { padding: 0 20px; bottom: 20px; }
   .summary-card { padding: 20px; }
+  #orb { width: 320px; height: 320px; }
 }
 </style>
 </head>
@@ -388,7 +391,7 @@ input[type="text"], input[type="email"] {
 <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
 
 <div class="top-bar">
-  <a class="logo" href="https://naomikeren.com/" target="_blank">נעמי קרן</a>
+  <a class="logo" href="#" onclick="showScreen(0);return false;">נעמי קרן</a>
   <span class="q-counter" id="q-counter"></span>
 </div>
 
@@ -399,20 +402,18 @@ input[type="text"], input[type="email"] {
     <p class="eyebrow">לפני שנפגש</p>
     <h1 class="intro-title">מוכנים לזרוח?</h1>
     <p class="intro-body">
-      כמה שאלות לפני הפגישה שלנו — לא בשביל להכין "תשובות נכונות", אלא בשביל להתחיל לזוז פנימה.<br>
-      לגמרי בסדר אם משהו לא יהיה מסודר.
-      זה רגע להפעיל מודעות, להזיז גלגלים.
-      בפגישה נחדד ביחד.
+      כמה שאלות לפני הפגישה שלנו. תקחו חצי שעה בשקט ותשבו על זה.<br>
+      זה לא צריך להיות מושלם, נדייק את זה ביחד.
     </p>
     <button class="btn btn-primary" id="intro-btn" style="align-self:flex-start;padding:16px 40px;font-size:17px">בואו נתחיל ←</button>
-    <p class="intro-note">התשובות ישלחו לנעמי לפני הפגישה ויחזרו אליכם/ן כסיכום.</p>
+    <p class="intro-note">התשובות ישלחו אליי (נעמי) לפני הפגישה ויחזרו אליכם/ן כסיכום.</p>
   </div>
 
   <!-- 1: NAME -->
   <div class="screen" data-idx="1">
     <p class="q-label">רגע לפני</p>
     <h2 class="q-text">מה שמך?</h2>
-    <input type="text" id="ans-name" placeholder="שם פרטי..." autocomplete="given-name">
+    <input type="text" id="ans-name" placeholder="כן, שמך האמיתי..." autocomplete="given-name">
     <p class="enter-hint">לחצו <kbd>Enter ↵</kbd> להמשך</p>
   </div>
 
@@ -445,58 +446,58 @@ input[type="text"], input[type="email"] {
 const questions = [
   {
     label: '1 / 11',
-    text: 'ספרו לי על לקוח/ה שיצא/ה מכם מאושר/ת במיוחד — מה קרה שם?',
-    hint: 'ספרו כמו שעולה לכם, בלי לסנן'
+    text: 'ספרו לי על לקוח/ה שיצא/ה מכם מאושר/ת במיוחד - מה קרה\u00A0שם?',
+    hint: 'ספרו כמו שעולה לכם, בלי\u00A0לסנן'
   },
   {
     label: '2 / 11',
-    text: 'יש עבודה שעשיתם שאתם הכי גאים בה?',
-    hint: 'לאו דווקא הכי מוצלחת — מה שהכי מרגיש כמוכם'
+    text: 'יש עבודה שעשיתם שאתם הכי גאים\u00A0בה?',
+    hint: 'לאו דווקא הכי מוצלחת - מה שהכי מרגיש\u00A0אתם'
   },
   {
     label: '3 / 11',
-    text: 'מה לקוחות אומרים עליכם שוב ושוב?',
-    hint: 'פידבקים, מחמאות, דברים שחוזרים'
+    text: 'מה לקוחות אומרים עליכם שוב\u00A0ושוב?',
+    hint: 'פידבקים, מחמאות, דברים\u00A0שחוזרים'
   },
   {
     label: '4 / 11',
-    text: 'מה אתם עושים אחרת מאחרים בתחום שלכם?',
-    hint: 'גם אם זה נשמע לכם מובן מאליו — בדיוק זה מעניין אותי'
+    text: 'מה אתם עושים אחרת מאחרים בתחום\u00A0שלכם?',
+    hint: 'גם אם זה נשמע לכם מובן מאליו — בדיוק זה מעניין\u00A0אותי'
   },
   {
     label: '5 / 11',
-    text: 'יש משהו שאתם עושים "כמובן מאליו" שלקוחות מופתעים ממנו?',
-    hint: 'לרוב שם מסתתר הייחוד האמיתי'
+    text: 'יש משהו שאתם עושים "כמובן מאליו" שלקוחות מופתעים\u00A0ממנו?',
+    hint: 'לרוב שם מסתתר הייחוד\u00A0האמיתי'
   },
   {
     label: '6 / 11',
-    text: 'מי הלקוח/ה שאתם הכי נהנים לעבוד איתו/ה?',
-    hint: 'מה מאפיין אותו/ה? מה גורם לשיחה לזרום?'
+    text: 'מי הלקוח/ה שאתם הכי נהנים לעבוד\u00A0איתו/ה?',
+    hint: 'מה מאפיין אותו/ה? מה גורם לשיחה\u00A0לזרום?'
   },
   {
     label: '7 / 11',
-    text: 'יש סוג לקוח שאתם מעדיפים לא לקחת?',
-    hint: 'זה עוזר להבין את הייחוד מהכיוון ההפוך'
+    text: 'יש סוג לקוח שאתם מעדיפים לא\u00A0לקחת?',
+    hint: 'זה עוזר להבין את הייחוד מהכיוון\u00A0ההפוך'
   },
   {
     label: '8 / 11',
-    text: 'מה הפעולה שהכי חשוב לכם שמבקרים יעשו באתר שלכם?',
-    hint: 'פנייה, רכישה, הרשמה, שיחה...'
+    text: 'מה הפעולה שהכי חשוב לכם שמבקרים יעשו באתר\u00A0שלכם?',
+    hint: 'פנייה, רכישה, הרשמה,\u00A0שיחה...'
   },
   {
     label: '9 / 11',
-    text: 'מאיפה מגיעים רוב הלקוחות שלכם היום?',
-    hint: 'המלצות, אינסטגרם, גוגל, פייסבוק...'
+    text: 'מאיפה מגיעים רוב הלקוחות שלכם\u00A0היום?',
+    hint: 'המלצות, אינסטגרם, גוגל,\u00A0פייסבוק...'
   },
   {
     label: '10 / 11',
-    text: 'יש אתר שאתם אוהבים?',
-    hint: 'לינק + מה אתם אוהבים בו — לא חייב להיות בתחום שלכם'
+    text: 'יש אתר שאתם\u00A0אוהבים?',
+    hint: 'לינק + מה אתם אוהבים בו — לא חייב להיות בתחום\u00A0שלכם'
   },
   {
     label: '11 / 11',
-    text: 'איך אתם רואים את העסק שלכם עוד שנה-שנתיים?',
-    hint: 'תנו לעצמכם לחלום קצת'
+    text: 'איך אתם רואים את העסק שלכם עוד\u00A0שנה-שנתיים?',
+    hint: 'תנו לעצמכם לחלום\u00A0קצת'
   }
 ];
 
@@ -522,7 +523,7 @@ questions.forEach((q, i) => {
   div.className = 'screen';
   div.dataset.idx = SCREEN_Q0 + i;
   div.innerHTML = `
-    <p class="q-label">${q.label}</p>
+    <p class="q-label"><span>שאלה ${i + 1}/${TOTAL_Q}</span></p>
     <h2 class="q-text">${q.text}</h2>
     ${q.hint ? `<p class="q-hint">${q.hint}</p>` : ''}
     <textarea id="ans-q${i}" placeholder="כתבו כאן..." rows="1"></textarea>
@@ -548,8 +549,8 @@ tyDiv.dataset.idx = SCREEN_THANKS;
 tyDiv.innerHTML = `
   <h2 class="ty-title">הגיע הזמן<br>לזרוח.</h2>
   <p class="ty-sub">
-    תודה שהקדשתם את הזמן.<br>
-    אני ואתם נגיע יותר מוכנים לפגישה.
+    תודה על הזמן שהקדשתם.<br>
+    ניפגש בקרוב 🌻
   </p>
   <div class="summary-card" id="summary-card"></div>
   <button class="btn btn-primary" id="copy-btn" style="align-self:flex-start">העתיקו את הסיכום ←</button>
@@ -594,7 +595,8 @@ function updateUI() {
   const nav       = document.getElementById('nav-bar');
 
   // Nav bar
-  nav.style.display = (isIntro || isThanks) ? 'none' : 'flex';
+  nav.style.display = isIntro ? 'none' : 'flex';
+  document.getElementById('btn-next').style.display = isThanks ? 'none' : 'inline-flex';
 
   // Back
   const btnBack = document.getElementById('btn-back');
@@ -637,7 +639,33 @@ function saveCurrentAnswer() {
   }
 }
 
+function showValidation(msg) {
+  let el = document.querySelector('.validation-msg');
+  if (!el) {
+    el = document.createElement('p');
+    el.className = 'validation-msg';
+    el.style.cssText = 'color:var(--accent);font-size:14px;margin-top:8px;text-align:right;animation:fadeIn .3s ease';
+  }
+  el.textContent = msg;
+  const screen = document.querySelector(`.screen[data-idx="${current}"]`);
+  const input = screen && screen.querySelector('input');
+  if (input) input.after(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
 function next() {
+  // Validate name
+  if (current === SCREEN_NAME) {
+    const val = document.getElementById('ans-name').value.trim();
+    if (!val) { showValidation('שם זה דבר חשוב 😅'); return; }
+  }
+  // Validate email
+  if (current === SCREEN_EMAIL) {
+    const val = document.getElementById('ans-email').value.trim();
+    if (!val) { showValidation('בלי אימייל הסיכום יתעופף לאן שלא יודעים 🌀'); return; }
+    if (!val.includes('@')) { showValidation('זה לא נראה כמו אימייל... אבל ניסיון טוב 🙃'); return; }
+  }
+
   saveCurrentAnswer();
 
   if (current === SCREEN_QLast) {
@@ -686,8 +714,14 @@ document.addEventListener('keydown', e => {
       next();
     }
   }
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' || e.key === 'ArrowUp' || e.key === 'ArrowRight') {
     back();
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+    const screen = document.querySelector(`.screen[data-idx="${current}"]`);
+    const hasTextarea = screen && screen.querySelector('textarea');
+    if (hasTextarea && !e.shiftKey) { e.preventDefault(); next(); }
+    else if (!hasTextarea) next();
   }
 });
 
@@ -794,6 +828,21 @@ document.getElementById('btn-skip').addEventListener('click', skip);
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 
 showScreen(0);
+
+// ─── ORB CURSOR FOLLOW ────────────────────────────────────────────────────────
+
+(function() {
+  const orb = document.getElementById('orb');
+  let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+  let cx = mx, cy = my;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function lerp() {
+    cx += (mx - cx) * 0.08;
+    cy += (my - cy) * 0.08;
+    orb.style.transform = `translate(${cx - 260}px, ${cy - 260}px)`;
+    requestAnimationFrame(lerp);
+  })();
+})();
 
 </script>
 </body>
